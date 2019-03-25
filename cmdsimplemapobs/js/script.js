@@ -8,6 +8,9 @@ if(Modernizr.webgl) {
 
 	//Load data and config file
 	d3.queue()
+	  //.defer(d3.json, "https://api.beta.ons.gov.uk/v1/datasets/mid-year-pop-est/editions/time-series/versions/4/dimensions/time/options")
+		//.defer(d3.json, "https://api.beta.ons.gov.uk/v1/datasets/ashe-table-7-earnings/editions/time-series/versions/1/observations?time=2017&sex=all&workingpattern=all&earnings=annual-pay-gross&statistics=mean&geography=*")
+		//.defer(d3.json, "https://download.beta.ons.gov.uk/downloads/datasets/ashe-table-7-earnings/editions/time-series/versions/1/observations?time=2017&sex=all&workingpattern=all&earnings=annual-pay-gross&statistics=mean&geography=*")
 		.defer(d3.json, "https://api.beta.ons.gov.uk/v1/datasets/ashe-table-7-earnings/editions/time-series/versions/1/observations?time=2017&sex=all&workingpattern=all&earnings=annual-pay-gross&statistics=mean&geography=*")
 		.defer(d3.json, "data/config.json")
 		.defer(d3.json, "data/geog.json")
@@ -16,6 +19,10 @@ if(Modernizr.webgl) {
 
 	function ready (error, data, config, geog){
 
+		console.log(data)
+
+		data=data.observations;
+
 		//Set up global variables
 		dvc = config.ons;
 		oldAREACD = "";
@@ -23,12 +30,14 @@ if(Modernizr.webgl) {
 
 
 		//get column name
-		for (var column in data[0]) {
-			if (column == 'AREACD') continue;
-			if (column == 'AREANM') continue;
-			dvc.varname = column;
+		// for (var column in data[0]) {
+		// 	if (column == 'ashe-geography') continue;
+		// 	if (column == 'Geography') continue;
+		// 	dvc.varname = "V4_2";
+		//
+		// }
 
-		}
+		console.log(dvc.varname)
 
 		//set title of page
 		//Need to test that this shows up in GA
@@ -84,11 +93,12 @@ if(Modernizr.webgl) {
 		rateById = {};
 		areaById = {};
 
-		data.forEach(function(d) { rateById[d.AREACD] = +eval("d." + dvc.varname); areaById[d.AREACD] = d.AREANM});
+		data.forEach(function(d) { rateById[d.dimensions.Geography.id] = +d.observation; areaById[d.dimensions.Geography.id] = d.dimensions.Geography.label});
 
+		console.log(rateById)
 
 		//Flatten data values and work out breaks
-		var values =  data.map(function(d) { return +eval("d." + dvc.varname); }).filter(function(d) {return !isNaN(d)}).sort(d3.ascending);
+		var values =  data.map(function(d) { return +d.observation; }).filter(function(d) {return !isNaN(d)}).sort(d3.ascending);
 
 		if(config.ons.breaks =="jenks") {
 			breaks = [];
@@ -136,6 +146,7 @@ if(Modernizr.webgl) {
 		for(key in geog.objects){
 			var areas = topojson.feature(geog, geog.objects[key])
 		}
+		console.log(areas)
 
 		//Work out extend of loaded geography file so we can set map to fit total extent
 		bounds = turf.extent(areas);
@@ -572,8 +583,8 @@ if(Modernizr.webgl) {
 
 		function selectlist(datacsv) {
 
-			var areacodes =  datacsv.map(function(d) { return d.AREACD; });
-			var areanames =  datacsv.map(function(d) { return d.AREANM; });
+			var areacodes =  datacsv.map(function(d) { return d["ashe-geography"]; });
+			var areanames =  datacsv.map(function(d) { return d.Geography; });
 			var menuarea = d3.zip(areanames,areacodes).sort(function(a, b){ return d3.ascending(a[0], b[0]); });
 
 			// Build option menu for occupations
@@ -618,11 +629,13 @@ if(Modernizr.webgl) {
 							resetZoom();
 					}
 
-			});
+			})
 
-	};
+		}
 
-	}
+}; // End Ready
+
+
 
 } else {
 
