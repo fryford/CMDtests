@@ -4,7 +4,7 @@
 "varunit": "change in months",
 "displaydecimals": 1,
 "legenddecimals": 0,
-"breaks": "equal",
-"dropticks": false,
+"breaks": "jenks",
+"dropticks": true,
 "numberBreaks": 5
 }}

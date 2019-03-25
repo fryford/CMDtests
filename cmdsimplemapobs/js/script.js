@@ -28,17 +28,6 @@ if(Modernizr.webgl) {
 		oldAREACD = "";
 		firsthover = true;
 
-
-		//get column name
-		// for (var column in data[0]) {
-		// 	if (column == 'ashe-geography') continue;
-		// 	if (column == 'Geography') continue;
-		// 	dvc.varname = "V4_2";
-		//
-		// }
-
-		console.log(dvc.varname)
-
 		//set title of page
 		//Need to test that this shows up in GA
 		document.title = dvc.maptitle;
@@ -87,6 +76,52 @@ if(Modernizr.webgl) {
 
 
 		addFullscreen();
+
+		// Generate list of codes so we filter out the values we don't need
+
+
+		geogcodes = [];
+
+		for(key in geog.objects){
+			for(i=0; i<geog.objects[key].geometries.length; i++){
+				geogcodes.push(geog.objects[key].geometries[i].properties.AREACD)
+			}
+		}
+
+
+		//test to see if areacode in array -> seems quickest - https://stackoverflow.com/questions/7378228/check-if-an-element-is-present-in-an-array
+		function inArray(target, array)
+			{
+
+			/* Caching array.length doesn't increase the performance of the for loop on V8 (and probably on most of other major engines) */
+
+			  for(var i = 0; i < array.length; i++)
+			  {
+			    if(array[i] === target)
+			    {
+			      return true;
+			    }
+			  }
+
+			  return false;
+			}
+
+
+			// var result = 0;
+			//
+			// var start = new Date().getTime();
+			// for(var i = 0; i < 10000000; i++)
+			// {
+			//   if(inArray("test", array) === true){ result++; }
+			// }
+			// console.log(new Date().getTime() - start);
+
+		//filter out un-needed data
+
+		console.log(data)
+		data = data.filter(function(d) {if(inArray(d.dimensions.Geography.id, geogcodes) === true) {return d}});
+
+		console.log(data)
 
 		//set up d3 color scales
 
