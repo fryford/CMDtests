@@ -618,8 +618,10 @@ if(Modernizr.webgl) {
 
 		function selectlist(datacsv) {
 
-			var areacodes =  datacsv.map(function(d) { return d["ashe-geography"]; });
-			var areanames =  datacsv.map(function(d) { return d.Geography; });
+			console.log(datacsv)
+
+			var areacodes =  datacsv.map(function(d) { return d.dimensions.Geography.id; });
+			var areanames =  datacsv.map(function(d) { return d.dimensions.Geography.label; });
 			var menuarea = d3.zip(areanames,areacodes).sort(function(a, b){ return d3.ascending(a[0], b[0]); });
 
 			// Build option menu for occupations
